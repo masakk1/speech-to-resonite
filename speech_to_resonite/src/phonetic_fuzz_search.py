@@ -118,7 +118,7 @@ class PhoneticFuzzSearch:
         query = query.lower()
         found_node = None
 
-        node_matches = self.search_node_lev_double_metaphone(query, self.nodes, 5)
+        node_matches = self.search_node_metaphone(query, self.nodes, 5)
         self.debugging_print("Node matches:", node_matches)
         if node_matches == []:
             self.debugging_print(

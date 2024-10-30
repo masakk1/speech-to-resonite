@@ -139,6 +139,10 @@
         {
             "value": "busy year",
             "binding": "bezier"
+        },
+        {
+            "value": "float to",
+            "binding": "float two"
         }
     ]
 }

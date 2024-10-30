@@ -36,4 +36,20 @@ Looking into more phonetic algorithms
 
 ## Tasks
 1. [ ] Create the phonetic algorithms - https://en.wikipedia.org/wiki/Phonetic_algorithm
-2. [ ] Add unit tests
+  - [ ] Soundex
+  - [ ] + fuzzy
+  - [ ] Daitch–Mokotoff Soundex
+  - [ ] + fuzzy
+  - [ ] Cologne phonetics
+  - [ ] + fuzzy
+  - [ ] Metaphone and Double Metaphone (have a better search and utilise the metaphone1)
+  - [ ] New York State Identification and Intelligence System
+  - [ ] + fuzzy
+  - [ ] Match Rating Approach 
+  - [ ] + fuzzy
+  - [ ] Caverphone
+  - [ ] + fuzzy
+2. [X] Add unit tests
+  - [ ] make them more modular
+3. [ ] add the "fuzzy" version of the metaphone as an option, not another function
+4. [ ] Experiment with changing the theshold for fuzzy searches

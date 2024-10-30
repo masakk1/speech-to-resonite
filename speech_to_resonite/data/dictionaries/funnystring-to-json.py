@@ -1,5 +1,7 @@
 import json
 import re
+import sys
+import os
 from num2words import num2words
 from metaphone import metaphone, doublemetaphone
 
@@ -56,7 +58,7 @@ def generate_nodes_grammar(funnystring):
 def get_metaphone_code(string):
     string = string.replace("_", "").lower()
     string = convert_numbers_to_words(string)
-    print(string)
+    # print(string)
     code = doublemetaphone(string)
     return code
 
@@ -86,8 +88,32 @@ def generate_node_names(funnystring):
     return data
 
 
+def validate_args(args):
+    if len(args) < 2:
+        print("Usage: python script.py <origin_file> <output_path>")
+        sys.exit(1)
+
+    if os.path.exists(args[1]) == False:
+        print(f"Error: could not find the funnystring. Path = {sys.argv[1]}")
+        sys.exit(1)
+
+    if len(args) < 3:
+        print("Defaulting output path to '.'")
+        args.append(".")
+    if os.path.exists(args[2]) == False:
+        print(
+            f"Error: could not find the output path. Path = {args[2]}. Defaulting position to '.'"
+        )
+        args[2] = "."
+
+    return args
+
+
 if __name__ == "__main__":
-    with open("funnystring.txt", "r") as json_file:
+
+    args = validate_args(sys.argv)
+    funnystring_path = args[1]
+    with open(funnystring_path, "r") as json_file:
         funnystring = json_file.read()
 
     grammar = generate_nodes_grammar(funnystring)
@@ -97,7 +123,7 @@ if __name__ == "__main__":
 
     json_data = json.dumps(node_database, indent=4)
 
-    with open("resonite-node-database.json", "w") as json_file:
+    with open(args[2] + "/" + "resonite-node-database.json", "w") as json_file:
         json_file.write(json_data)
 
     print("Conversion complete. Check resonite-node-database.json for the result.")

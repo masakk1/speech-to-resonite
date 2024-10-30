@@ -3,6 +3,7 @@
   - Value if it is worth adding a different kind of "type", an "underscore" type. Differentiating them from the "<type>".
   - Should not take the _ for calculating the metaphonetic code. There will never be a node called "Node_Type" and another "NodeType"
   - Evaluate wheter to add fuzzy search to the metaphone
+2. [ ] Structure the project
 2. [ ] Check the TODOs for the funnystring-to-json project
 3. [ ] Add command recognition
   - Bind different aliases. ie: give me a, gimme a, generate a, create node, etc - type, of type, etc.
@@ -33,5 +34,6 @@
 
   - [X] Should not take the _ for calculating the metaphonetic code. There will never be a node called "Node_Type" and another "NodeType"
   - [X] Convert numbers to text when calculating metaphone code
-  - Evaluate whether to add fuzzy search to the metaphone
-  - Revise all of the "not detected commands"
+  - [ ] Evaluate whether to add fuzzy search to the metaphone
+  - [ ] Revise all of the "not detected commands"
+  - [ ] fuzzy_search for phonetic_fuzz_search only searches for the nodes, return the whole node

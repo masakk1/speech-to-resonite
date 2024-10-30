@@ -27,6 +27,8 @@ class PhoneticFuzzSearch:
     def search_node_metaphone(self, query: str, list, limit=5) -> list:
         query_metaphone = metaphone.doublemetaphone(query)
 
+        self.debugging_print(f"Query: {query}, metaphone: {query_metaphone}")
+
         matches = []
         index = 0
         for item in list:
@@ -42,6 +44,7 @@ class PhoneticFuzzSearch:
         return matches
 
     def search_node(self, query: str):
+        query = query.lower()
         found_node = None
 
         metaphone_matches = self.search_node_metaphone(query, self.nodes, 5)
@@ -53,7 +56,7 @@ class PhoneticFuzzSearch:
             return None
 
         fuzzy_matches = self.search_fuzzy(
-            query, [node["name"] for node in metaphone_matches], limit=1
+            query, [node["name"].lower() for node in metaphone_matches], limit=20
         )
         self.debugging_print("Fuzzy matches:", fuzzy_matches)
         found_node = fuzzy_matches[0]

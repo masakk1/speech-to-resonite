@@ -28,7 +28,10 @@
 1. Improving the phonetic search
 
 ## Current tasks
-  - Value if it is worth adding a different kind of "type", an "underscore" type. Differentiating them from the "<type>".
-  - Should not take the _ for calculating the metaphonetic code. There will never be a node called "Node_Type" and another "NodeType"
+  - [X] Value if it is worth adding a different kind of "type", an "underscore" type. Differentiating them from the "<type>".
+  NOTE: no
+
+  - [X] Should not take the _ for calculating the metaphonetic code. There will never be a node called "Node_Type" and another "NodeType"
+  - [X] Convert numbers to text when calculating metaphone code
   - Evaluate whether to add fuzzy search to the metaphone
   - Revise all of the "not detected commands"

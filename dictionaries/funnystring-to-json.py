@@ -1,10 +1,19 @@
 import json
 import re
-import jellyfish
+from num2words import num2words
 from metaphone import metaphone, doublemetaphone
 
 
-# ----- Funcitons -----
+def convert_numbers_to_words(input_string):
+    def replace_number(match):
+        number = match.group(0)  # Get the matched number
+        return num2words(number)  # Convert to words
+
+    output_string = re.sub(r"\d+", replace_number, input_string)
+
+    return output_string
+
+
 def split_node_path(node_path):
     node_type_split = node_path.split("<")
     node_path_without_contents = node_type_split[0]
@@ -44,6 +53,14 @@ def generate_nodes_grammar(funnystring):
     return data
 
 
+def get_metaphone_code(string):
+    string = string.replace("_", "").lower()
+    string = convert_numbers_to_words(string)
+    print(string)
+    code = doublemetaphone(string)
+    return code
+
+
 def generate_node_names(funnystring):
     data = []
     parts = funnystring.split("|")
@@ -56,11 +73,10 @@ def generate_node_names(funnystring):
         name_length = 2 if has_type else 1
 
         name = parts[-name_length]
-        name_metaphone = metaphone.doublemetaphone(name)
+        name_metaphone = get_metaphone_code(name)
         node = {
             "name": name,
             "type": parts[-1] if has_type else "",
-            "soundex": jellyfish.soundex(name),
             "metaphone0": name_metaphone[0],
             "metaphone1": name_metaphone[1],
         }

@@ -25,6 +25,8 @@ class TestPhoneticFuzzSearch(unittest.TestCase):
 
     def _search_node(self, query: str, node_searcher_func: callable):
         query = query.lower()
+        query_numbers = query
+        query = self.convert_numbers_to_words(query)
         found_node = None
 
         node_matches = node_searcher_func(query, self.nodes, self._search_limit)
@@ -32,7 +34,9 @@ class TestPhoneticFuzzSearch(unittest.TestCase):
             return None
 
         fuzzy_matches = self.finder.search_fuzzy(
-            query, [node["name"].lower() for node in node_matches], limit=20
+            query_numbers,
+            [node["name"].lower() for node in node_matches],
+            limit=20,
         )
         found_node = fuzzy_matches[0]
 
@@ -64,97 +68,34 @@ class TestPhoneticFuzzSearch(unittest.TestCase):
             query = self.convert_numbers_to_words(query)
             self.random_queries.append((query, query))
 
-    def test_random_exact_metaphone(self):
+    def _test_template(self, name, queries, node_searcher_func, *args, **kwargs):
         start_time = time.time()
 
         score = 0
-        for query, real in self.random_queries:
-            node = self._search_node(query, self.finder.search_node_metaphone)
+        for query, real in queries:
+            node = self._search_node(query, node_searcher_func, *args, **kwargs)
             if node and node[0] == real.lower():
                 score += 1
 
         end_time = time.time()
-        print(
-            f"Time {end_time - start_time:.2f} seconds. Score: {score}/{len(self.random_queries)}"
+        print(f"{name:<10}\t{end_time - start_time:.2f}s\t{score}/{len(queries)}")
+
+    def _test_suite(self, node_search_func, *args, **kwargs):
+        self._test_template(
+            "random", self.random_queries, node_search_func, *args, **kwargs
+        )
+        self._test_template(
+            "uncommon", self.queries["uncommon"], node_search_func, *args, **kwargs
         )
 
-    #        self.assertGreaterEqual(score, len(self.random_queries))
+    def test_exact_metaphone(self):
+        self._test_suite(self.finder.search_node_metaphone)
 
-    def test_uncommon_exact_metaphone(self):
-        start_time = time.time()
+    def test_fuzzy_metaphone(self):
+        self._test_suite(self.finder.search_node_fuzzy_metaphone)
 
-        score = 0
-        for query, real_name in self.queries["uncommon"]:
-            node = self._search_node(query, self.finder.search_node_metaphone)
-            if node and node[0] == real_name.lower():
-                score += 1
-
-        end_time = time.time()
-        print(
-            f"Time {end_time - start_time:.2f} seconds. Score: {score}/{len(self.queries['uncommon'])}"
-        )
-
-    def test_random_search_lev_double_metaphone(self):
-        start_time = time.time()
-
-        score = 0
-        for query, real in self.random_queries:
-            node = self._search_node(
-                query, self.finder.search_node_lev_double_metaphone
-            )
-            if node and node[0] == real.lower():
-                score += 1
-
-        end_time = time.time()
-        print(
-            f"Time {end_time - start_time:.2f} seconds. Score: {score}/{len(self.random_queries)}"
-        )
-
-    def test_uncommon_search_lev_double_metaphone(self):
-        start_time = time.time()
-
-        score = 0
-        for query, real_name in self.queries["uncommon"]:
-            node = self._search_node(
-                query, self.finder.search_node_lev_double_metaphone
-            )
-            if node and node[0] == real_name.lower():
-                score += 1
-
-        end_time = time.time()
-        print(
-            f"Time {end_time - start_time:.2f} seconds. Score: {score}/{len(self.queries['uncommon'])}"
-        )
-
-    def test_random_fuzzy_metaphone(self):
-        start_time = time.time()
-
-        score = 0
-        for query, real in self.random_queries:
-            node = self._search_node(query, self.finder.search_node_fuzzy_metaphone)
-            if node and node[0] == real.lower():
-                score += 1
-
-        end_time = time.time()
-        print(
-            f"Time {end_time - start_time:.2f} seconds. Score: {score}/{len(self.random_queries)}"
-        )
-
-    #        self.assertGreaterEqual(score, len(self.random_queries))
-
-    def test_uncommon_fuzzy_metaphone(self):
-        start_time = time.time()
-
-        score = 0
-        for query, real_name in self.queries["uncommon"]:
-            node = self._search_node(query, self.finder.search_node_fuzzy_metaphone)
-            if node and node[0] == real_name.lower():
-                score += 1
-
-        end_time = time.time()
-        print(
-            f"Time {end_time - start_time:.2f} seconds. Score: {score}/{len(self.queries['uncommon'])}"
-        )
+    def test_lev_double_metaphone(self):
+        self._test_suite(self.finder.search_node_lev_double_metaphone)
 
 
 #        self.assertGreaterEqual(score, len(self.queries["uncommon"]))

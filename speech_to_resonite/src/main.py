@@ -23,7 +23,7 @@ class SpeechParser:
     ):
         if not os.path.exists(model_path):
             print(
-                "Please download a model from https://alphacephei.com/vosk/models and unpack it to speech_to_resonite/models/"
+                "Please download a model from https://alphacephei.com/vosk/models and unpack it to speech_to_resonite/data/models/"
             )
             sys.exit(1)
 
@@ -85,16 +85,14 @@ class SpeechParser:
 
         return text
 
-    def parse_speech(self, speech: str):
-        self.debugging_print("Parsing:", speech)
-
+    def search_node(self, speech: str):
         speech = self.swap_bindings(speech)
-        speech = speech.replace(" ", "")
+        query = self.finder.speech_sanitize(speech)
 
-        self.debugging_print("Sending:", speech)
+        return self.finder.search_node_exact_caverphone(query)
 
-        node = self.finder.search_node(speech)
-        self.debugging_print("Found:", node)
+    def parse_speech(self, speech: str):
+        node = self.search_node(speech)
 
         return node
 
@@ -139,7 +137,7 @@ class SpeechParser:
 
 
 if __name__ == "__main__":
-    speech_parsesr = SpeechParser(
+    speech_parser = SpeechParser(
         model_path="speech_to_resonite/data/models/vosk-model-small-en-us-0.15",
         database_path="speech_to_resonite/data/dictionaries/resonite-node-database.json",
         custom_words_path="speech_to_resonite/data/dictionaries/custom-words.json",
@@ -149,4 +147,4 @@ if __name__ == "__main__":
     stream = mic.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True)
     stream.start_stream()
 
-    speech_parsesr.start_listening()
+    speech_parser.start_listening()

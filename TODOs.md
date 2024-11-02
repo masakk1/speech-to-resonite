@@ -8,7 +8,7 @@
   - [ ] Revise all of the "not detected commands"
   - [ ] fuzzy_search for phonetic_fuzz_search only searches for the nodes, return the whole node
   - [ ] Make use of metaphone1
-2. [ ] Look into more phonetic algorithms
+2. [X] Look into more phonetic algorithms
 3. [ ] Structure the project
 4. [ ] Check the TODOs for the funnystring-to-json project
 5. [ ] Add command recognition
@@ -26,30 +26,15 @@
 9. [ ] Check permormance on different bechmarks as well as in game (VR)
   - Note: the base model wasn't really that hard to run, but it's good to have numbers
   - since that may affect some people's decision
-10. [ ] Add a README.md
-11. [ ] Create releases
+10. [ ] Resize the node database to only store those phonetic codes that are needed
+11. [ ] Add ways to configure it
+12. [ ] Add a README.md
+13. [ ] Create releases
   - Try learning github actions
 
 
+
 # Current project
-Looking into more phonetic algorithms
+Structure the whole project
 
 ## Tasks
-1. [ ] Create the phonetic algorithms - https://en.wikipedia.org/wiki/Phonetic_algorithm
-  - [ ] Soundex
-  - [ ] + fuzzy
-  - [ ] Daitch–Mokotoff Soundex
-  - [ ] + fuzzy
-  - [ ] Cologne phonetics
-  - [ ] + fuzzy
-  - [ ] Metaphone and Double Metaphone (have a better search and utilise the metaphone1)
-  - [ ] New York State Identification and Intelligence System
-  - [ ] + fuzzy
-  - [ ] Match Rating Approach 
-  - [ ] + fuzzy
-  - [ ] Caverphone
-  - [ ] + fuzzy
-2. [X] Add unit tests
-  - [ ] make them more modular
-3. [ ] add the "fuzzy" version of the metaphone as an option, not another function
-4. [ ] Experiment with changing the theshold for fuzzy searches

@@ -3,7 +3,6 @@ import time
 
 import abydos.phonetic
 from speech_to_resonite.src.phonetic_fuzz_search import PhoneticFuzzSearch
-from speech_to_resonite.tests.test_logger import TestResultLogger
 import json
 import abydos
 
@@ -43,8 +42,6 @@ class TestPhoneticFuzzSearch(unittest.TestCase):
         self._get_node_searchers()
         self._get_encoders()
 
-        self.logger = TestResultLogger()
-
     def _get_database(self):
         with open(self.database_path, "r") as f:
             self.database = json.load(f)
@@ -75,7 +72,7 @@ class TestPhoneticFuzzSearch(unittest.TestCase):
     def _get_node_searchers(self):
         self.node_searchers = {
             "exact": self.finder._node_search_exact,
-            # "searc": self.finder._node_search_fuzzy,
+            "fuzzy": self.finder._node_search_fuzzy,
         }
 
     def _get_all_queries(self):
@@ -97,12 +94,6 @@ class TestPhoneticFuzzSearch(unittest.TestCase):
                 score += 1
 
         end_time = time.time()
-
-        with self.logger.measure_and_log(
-            self._testMethodName[5:], name, node_searcher_name
-        ) as result:
-            result["score"] = score
-            result["total"] = len(queries)
 
         print(
             f"{self._testMethodName[5:]:<15}{name:<10}\t{node_searcher_name:<10}\t{end_time - start_time:.2f}\t{score/len(queries):.4f}"

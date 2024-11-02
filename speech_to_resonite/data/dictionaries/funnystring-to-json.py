@@ -2,8 +2,25 @@ import json
 import re
 import sys
 import os
+import abydos.phonetic
 from num2words import num2words
-from metaphone import metaphone, doublemetaphone
+import abydos
+
+
+soundex = abydos.phonetic.Soundex()
+refinedsoundex = abydos.phonetic.RefinedSoundex()
+metaphone = abydos.phonetic.Metaphone()
+doublemetaphone = abydos.phonetic.DoubleMetaphone()
+nysiis = abydos.phonetic.NYSIIS()
+caverphone = abydos.phonetic.Caverphone()
+daitchmokotoff = abydos.phonetic.DaitchMokotoff()
+mra = abydos.phonetic.MRA()
+phonex = abydos.phonetic.Phonex()
+phonix = abydos.phonetic.Phonix()
+beidermorse = abydos.phonetic.BeiderMorse()
+fuzzysoundex = abydos.phonetic.FuzzySoundex()
+onca = abydos.phonetic.ONCA()
+metasoundex = abydos.phonetic.MetaSoundex()
 
 
 def convert_numbers_to_words(input_string):
@@ -55,6 +72,12 @@ def generate_nodes_grammar(funnystring):
     return data
 
 
+def speech_sanitize(speech: str):
+    speech = speech.lower().replace(" ", "").replace("_", "")
+    speech = convert_numbers_to_words(speech)
+    return speech
+
+
 def get_metaphone_code(string):
     string = string.replace("_", "").lower()
     string = convert_numbers_to_words(string)
@@ -75,12 +98,25 @@ def generate_node_names(funnystring):
         name_length = 2 if has_type else 1
 
         name = parts[-name_length]
-        name_metaphone = get_metaphone_code(name)
+        spoken_name = speech_sanitize(name)
+
         node = {
             "name": name,
             "type": parts[-1] if has_type else "",
-            "metaphone0": name_metaphone[0],
-            "metaphone1": name_metaphone[1],
+            "soundex": soundex.encode(spoken_name),
+            "refinedsoundex": refinedsoundex.encode(spoken_name),
+            "metaphone": metaphone.encode(spoken_name),
+            # "doublemetaphone": doublemetaphone.encode(spoken_name),
+            "nysiis": nysiis.encode(spoken_name),
+            "caverphone": caverphone.encode(spoken_name),
+            # "daitchmokotoff": daitchmokotoff.encode(spoken_name),
+            "mra": mra.encode(spoken_name),
+            "phonex": phonex.encode(spoken_name),
+            "phonix": phonix.encode(spoken_name),
+            # "beidermorse": beidermorse.encode(spoken_name),
+            "fuzzysoundex": fuzzysoundex.encode(spoken_name),
+            "onca": onca.encode(spoken_name),
+            "metasoundex": metasoundex.encode(spoken_name),
         }
 
         data.append(node)

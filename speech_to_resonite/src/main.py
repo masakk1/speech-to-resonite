@@ -7,7 +7,7 @@ import threading
 
 from phonetic_fuzz_search import PhoneticFuzzSearch
 
-DEBUG = True
+DEBUG = False
 
 
 def list_difference(list1, list2):
@@ -20,6 +20,7 @@ class SpeechParser:
         model_path=None,
         database_path=None,
         custom_words_path=None,
+        stream=None,
     ):
         if not os.path.exists(model_path):
             print(
@@ -43,6 +44,8 @@ class SpeechParser:
 
         self.get_finder()
         self.finder.debug = self.debug
+
+        self.stream = stream
 
     def debugging_print(self, *args, **kwargs):
         if self.debug:
@@ -101,7 +104,7 @@ class SpeechParser:
         Internal function to continuously listen for audio inputs and parse them.
         """
         while self.listening:
-            data = stream.read(4096)
+            data = self.stream.read(4096)
 
             if self.recognizer.AcceptWaveform(data):
                 result = self.recognizer.Result()
@@ -141,10 +144,7 @@ if __name__ == "__main__":
         model_path="speech_to_resonite/data/models/vosk-model-small-en-us-0.15",
         database_path="speech_to_resonite/data/dictionaries/resonite-node-database.json",
         custom_words_path="speech_to_resonite/data/dictionaries/custom-words.json",
+        stream=mic_stream,
     )
-    mic = pyaudio.PyAudio()
-
-    stream = mic.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True)
-    stream.start_stream()
 
     speech_parser.start_listening()

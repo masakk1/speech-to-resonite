@@ -1,8 +1,6 @@
 import json
 import abydos.phonetic
 from rapidfuzz import process
-import metaphone
-import phonetics
 from num2words import num2words
 import re
 import Levenshtein as lev
@@ -84,12 +82,15 @@ class PhoneticFuzzSearch:
         return matches
 
     def _node_search_fuzzy(self, query: str, node_attribute) -> list:
-        matches = process.extract(query, [node[node_attribute] for node in self.nodes])
+        code_matches = process.extract(
+            query, [node[node_attribute] for node in self.nodes]
+        )
 
-        matches = remove_list_dulicates(matches)
+        code_matches = remove_list_dulicates(code_matches)
 
-        for match in matches:
-            code, _, _ = match
+        matches = []
+        for match in code_matches:
+            code = match[0]
             for node in self.nodes:
                 if node[node_attribute] == code:
                     matches.append(node)

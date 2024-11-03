@@ -22,7 +22,7 @@ fuzzysoundex = abydos.phonetic.FuzzySoundex()
 onca = abydos.phonetic.ONCA()
 metasoundex = abydos.phonetic.MetaSoundex()
 
-COMMON_PATH = "common.path.to.nodes"
+COMMON_PATH = "[ProtoFluxBindings]FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes"
 
 
 def convert_numbers_to_words(input_string):

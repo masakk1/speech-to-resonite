@@ -15,13 +15,8 @@
   - Modularised phonetic searches
   - Moved everything, basically
   - Added a main.py at the beginnign of the project
-4. [ ] Add the path for the nodes with the funnystring
+4. [X] Add the path for the nodes with the funnystring
 5. [ ] Add command recognition
-  - Bind different aliases. ie: give me a, gimme a, generate a, create node, etc - type, of type, etc.
-  - Must have a "type" identifier
-    - When a type is specified, and the command uses types, return like: ValueAdd<float>
-  - Mush have a "node-creation" command
-  - When sending the commands to resonite, send identifiers instead (ie: new node, generate a, give me a -> NEWNODE)s
 6. [X] Implement a web socked to communicate to Resonite
   - Check what others have made, perhaps.
   - Must be able to send the speech in text.
@@ -41,6 +36,11 @@
 
 
 # Current project
-Adding the path for the nodes
+Add commant recognition
 
 ## Tasks
+- [ ] Recognise starting commands 
+- [ ] Recognise trailing commants
+- [ ] Be able to add aliases to dommants
+- [ ] Send the commands with codes
+- [ ] Write a list of the command_codes

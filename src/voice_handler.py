@@ -1,11 +1,11 @@
 from vosk import Model, KaldiRecognizer
 import json
-import pyaudio
+import asyncio
 import sys
 import os
-import threading
 
-from phonetic_fuzz_search import PhoneticFuzzSearch
+from .phonetic_fuzz_search import PhoneticFuzzSearch
+
 
 DEBUG = False
 
@@ -14,9 +14,10 @@ def list_difference(list1, list2):
     return [x for x in list1 if x not in list2]
 
 
-class SpeechParser:
+class VoiceHandler:
     def __init__(
         self,
+        message_queue=None,
         model_path=None,
         database_path=None,
         custom_words_path=None,
@@ -27,6 +28,10 @@ class SpeechParser:
                 "Please download a model from https://alphacephei.com/vosk/models and unpack it to speech_to_resonite/data/models/"
             )
             sys.exit(1)
+        if not message_queue:
+            print("Please provide a message queue. asyncio.Queue()")
+
+        self.message_queue = message_queue
 
         self.debug = DEBUG
         self.listening = False
@@ -36,13 +41,12 @@ class SpeechParser:
         self.custom_words_path = custom_words_path
 
         self.model_path = model_path
-        self.get_model()
-
-        self.get_database()
+        self._get_model()
+        self._get_database()
         self.recognizer.SetWords(True)
         self.recognizer.SetGrammar(grammar=self.dictionary)
 
-        self.get_finder()
+        self._get_finder()
         self.finder.debug = self.debug
 
         self.stream = stream
@@ -51,7 +55,7 @@ class SpeechParser:
         if self.debug:
             print(*args, **kwargs)
 
-    def get_finder(self):
+    def _get_finder(self):
         if not self.database_path or not os.path.exists(self.database_path):
             print(
                 f"Error: could not find the dictionary. Database path = {self.database_path}"
@@ -59,12 +63,12 @@ class SpeechParser:
             sys.exit(1)
         self.finder = PhoneticFuzzSearch(self.database_path)
 
-    def get_model(self):
+    def _get_model(self):
         print(self.model_path)
         self.model = Model(self.model_path)
         self.recognizer = KaldiRecognizer(self.model, 16000)
 
-    def get_database(self):
+    def _get_database(self):
         dictionary = ""
 
         with open(self.custom_words_path, "r") as f:
@@ -99,11 +103,8 @@ class SpeechParser:
 
         return node
 
-    def listen_loop(self):
-        """
-        Internal function to continuously listen for audio inputs and parse them.
-        """
-        while self.listening:
+    async def listen_loop(self, stop_event):
+        while not stop_event.is_set():
             data = self.stream.read(4096)
 
             if self.recognizer.AcceptWaveform(data):
@@ -116,35 +117,5 @@ class SpeechParser:
 
                 node = self.parse_speech(text)
                 self.result = node
-                print(self.result)
 
-    def start_listening(self):
-        """
-        Begins to listens Read SpeechParser.result to read the result.
-        """
-        if not self.listening:
-            self.listening = True
-            self.listen_thread = threading.Thread(
-                target=self.listen_loop, name="VoskParsesListening"
-            )
-            self.listen_thread.start()
-
-    def stop_listening(self):
-        """
-        Stops the listening thread
-        """
-        self.listening = False
-        if self.listen_thread is not None:
-            self.listen_thread.join()
-            self.listen_thread = None
-
-
-if __name__ == "__main__":
-    speech_parser = SpeechParser(
-        model_path="speech_to_resonite/data/models/vosk-model-small-en-us-0.15",
-        database_path="speech_to_resonite/data/dictionaries/resonite-node-database.json",
-        custom_words_path="speech_to_resonite/data/dictionaries/custom-words.json",
-        stream=mic_stream,
-    )
-
-    speech_parser.start_listening()
+                await self.message_queue.put(node)

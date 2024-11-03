@@ -22,6 +22,8 @@ fuzzysoundex = abydos.phonetic.FuzzySoundex()
 onca = abydos.phonetic.ONCA()
 metasoundex = abydos.phonetic.MetaSoundex()
 
+COMMON_PATH = "common.path.to.nodes"
+
 
 def convert_numbers_to_words(input_string):
     def replace_number(match):
@@ -100,9 +102,15 @@ def generate_node_names(funnystring):
         name = parts[-name_length]
         spoken_name = speech_sanitize(name)
 
+        if parts[0] == "":
+            parts[0] = COMMON_PATH
+        path = ".".join(parts[:-name_length])
+
         node = {
             "name": name,
             "type": parts[-1] if has_type else "",
+            "path": path,
+            # All codes
             "soundex": soundex.encode(spoken_name),
             "refinedsoundex": refinedsoundex.encode(spoken_name),
             "metaphone": metaphone.encode(spoken_name),

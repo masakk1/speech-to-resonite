@@ -41,6 +41,6 @@
 
 
 # Current project
-Structure the whole project
+Adding the path for the nodes
 
 ## Tasks

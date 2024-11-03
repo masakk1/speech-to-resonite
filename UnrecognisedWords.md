@@ -113,3 +113,12 @@ ceil
 SqrMagnitude_Float3
 float as loat
 float two/to (2 not recognised by metaphone when no spaces)
+
+IsNull - 
+bobool3ol
+NullString - X
+PulseRandom
+Lerp - kinda... lap -> lerp
+slerp - slope -> slerp
+XOR (x four)
+right

@@ -13,7 +13,7 @@ async def main():
         stop_event=stop_event,
         model_path="data/models/vosk-model-small-en-us-0.15",
         database_path="data/dictionaries/resonite-node-database.json",
-        custom_words_path="data/dictionaries/custom-words.json",
+        config_path="data/config.json",
     )
     ws = WebsocketServer(message_queue, stop_event, "127.0.0.1", 8069)
 
@@ -34,8 +34,6 @@ async def main():
             ws.start(),
             voice_handler.listen_loop(),
         )
-    except Exception as e:
-        print(f"Error in main: {e}")
     finally:
         stream.stop_stream()
         stream.close()

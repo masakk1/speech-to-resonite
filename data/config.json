@@ -1,0 +1,209 @@
+{
+    "cmd": [
+        "NODETYPE",
+        "NEWNODE",
+        "SEARCHNODE",
+        "REPEATPREV",
+        "SEARCHPREV"
+    ],
+    "grammar": {
+        "add": [
+            "give me a",
+            "gimme a",
+            "search that for",
+            "mole",
+            "bowl",
+            "sync",
+            "u long",
+            "caster",
+            "g u id",
+            "h s l",
+            "e numb",
+            "x y w h",
+            "seal  ceil",
+            "square root",
+            "one to three four",
+            "eleven",
+            "wrecked",
+            "knoll",
+            "deep whip",
+            "f o v",
+            "lap",
+            "slope",
+            "remain",
+            "d",
+            "u v coordinate",
+            "grab a bubble",
+            "d focus",
+            "socket",
+            "cars",
+            "charts",
+            "kay rally t",
+            "busy year",
+            "h p reverb"
+        ],
+        "remove": [
+            "end"
+        ]
+    },
+    "bindings": {
+        "cmd": [
+            {
+                "new": "SEARCHPREV",
+                "replace": [
+                    "search previous",
+                    "search that"
+                ]
+            },
+            {
+                "new": "SEARCHNODE",
+                "replace": [
+                    "search for a",
+                    "search for",
+                    "search"
+                ]
+            },
+            {
+                "new": "REPEATPREV",
+                "replace": [
+                    "repeat previous",
+                    "repeat that",
+                    "repeat"
+                ]
+            },
+            {
+                "new": "NODETYPE",
+                "replace": [
+                    "of type",
+                    "uv type",
+                    "type"
+                ]
+            },
+            {
+                "new": "NEWNODE",
+                "replace": [
+                    "give me a",
+                    "give me an",
+                    "gimme a",
+                    "gimme an",
+                    "gimme n",
+                    "spawn a",
+                    "spawn an",
+                    "spawn",
+                    "generate a",
+                    "generate an"
+                ]
+            }
+        ],
+        "node": [
+            {
+                "replace": "square root",
+                "new": "sqrt"
+            },
+            {
+                "replace": "square",
+                "new": "sqr"
+            },
+            {
+                "replace": "bowl",
+                "new": "bool"
+            },
+            {
+                "replace": "mole",
+                "new": "mul"
+            },
+            {
+                "replace": "bowl",
+                "new": "bool"
+            },
+            {
+                "replace": "e numb",
+                "new": "enum"
+            },
+            {
+                "replace": "ray caster",
+                "new": "raycaster"
+            },
+            {
+                "replace": "seal",
+                "new": "ceil"
+            },
+            {
+                "replace": "wrecked",
+                "new": "rect"
+            },
+            {
+                "replace": "knoll",
+                "new": "null"
+            },
+            {
+                "replace": "deep whip",
+                "new": "dequip"
+            },
+            {
+                "replace": "slope",
+                "new": "SLerp"
+            },
+            {
+                "replace": "lap",
+                "new": "Lerp"
+            },
+            {
+                "replace": "remain",
+                "new": "remap"
+            },
+            {
+                "replace": "as byte",
+                "new": "abyte"
+            },
+            {
+                "replace": "one d",
+                "new": "1D"
+            },
+            {
+                "replace": "two d",
+                "new": "2D"
+            },
+            {
+                "replace": "to d",
+                "new": "2D"
+            },
+            {
+                "replace": "three d",
+                "new": "3D"
+            },
+            {
+                "replace": "grab a bubble",
+                "new": "grabbable"
+            },
+            {
+                "replace": "d focus",
+                "new": "defocus"
+            },
+            {
+                "replace": "d multiplex",
+                "new": "demultiplex"
+            },
+            {
+                "replace": "charts",
+                "new": "chars"
+            },
+            {
+                "replace": "cars",
+                "new": "chars"
+            },
+            {
+                "replace": "kay rally t",
+                "new": "chirality"
+            },
+            {
+                "replace": "busy year",
+                "new": "bezier"
+            },
+            {
+                "replace": "float to",
+                "new": "float two"
+            }
+        ]
+    }
+}

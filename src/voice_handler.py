@@ -21,7 +21,7 @@ class VoiceHandler:
         stop_event,
         model_path,
         database_path,
-        custom_words_path,
+        config_path,
         stream=None,
     ):
         if not os.path.exists(model_path):
@@ -40,7 +40,7 @@ class VoiceHandler:
         self.result = None
 
         self.database_path = database_path
-        self.custom_words_path = custom_words_path
+        self.config_path = config_path
 
         self.model_path = model_path
         self._get_model()
@@ -71,26 +71,28 @@ class VoiceHandler:
         self.recognizer = KaldiRecognizer(self.model, 16000)
 
     def _get_database(self):
-        dictionary = ""
-
-        with open(self.custom_words_path, "r") as f:
-            custom_dictionary = json.load(f)
+        with open(self.config_path, "r") as f:
+            config = json.load(f)
 
         with open(self.database_path, "r") as f:
             resonite_dictionary = json.load(f)
 
         # Bindings
-        self.bindings = custom_dictionary["bindings"]
+        self.bindings = config["bindings"]
 
         # Grammar
-        self.dictionary = resonite_dictionary["grammar"] + custom_dictionary["add"]
-        self.dictionary = list_difference(self.dictionary, custom_dictionary["remove"])
+        self.dictionary = resonite_dictionary["grammar"] + config["grammar"]["add"]
+        self.dictionary = list_difference(self.dictionary, config["grammar"]["remove"])
 
         self.dictionary = json.dumps(self.dictionary)
 
     def swap_bindings(self, text: str):
-        for binding in self.bindings:
-            text = text.replace(binding["value"], binding["binding"])
+        for cmd_binding in self.bindings["cmd"]:
+            for replace in cmd_binding["replace"]:
+                text = text.replace(replace, cmd_binding["new"])
+
+        for node_binding in self.bindings["node"]:
+            text = text.replace(node_binding["replace"], node_binding["new"])
 
         return text
 
@@ -100,11 +102,54 @@ class VoiceHandler:
 
         return self.finder.search_node_exact_caverphone(query)
 
-    def parse_speech(self, speech: str):
-        node = self.search_node(speech)
-        node = node[0] if node else ""
+    def parse_task(self, text: str):
+        words = text.split()
 
-        return node
+        task = {}
+        current_key = None
+        current_value = []
+
+        for word in words:
+            if word.isupper():  # Assuming keys are in uppercase
+                if current_key:
+                    task[current_key] = " ".join(current_value)
+                    current_value = []
+                current_key = word
+            else:
+                current_value.append(word)
+
+        if current_key and current_value:
+            task[current_key] = " ".join(current_value)
+        elif current_key:
+            task[current_key] = ""
+
+        return task
+
+    def handle_task(self, task):
+        for key, value in task.items():
+            if key == "NEWNODE":
+                node = self.search_node(value)
+                if node:
+                    print(node)
+
+                    name = node["name"]
+                    path = node["path"]
+                    # node_type = node["type"]
+                    task["NEWNODE"] = f"{path}.{name}"  # {node_type}"
+                else:
+                    task = {"ERR": "Node not found"}
+
+        return task
+
+    def dict_to_string(self, task):
+        return " ".join(f"{key} {value}" for key, value in task.items())
+
+    def parse_speech(self, speech: str):
+        task_text = self.swap_bindings(speech)
+        task = self.parse_task(task_text)
+        task = self.handle_task(task)
+
+        return self.dict_to_string(task)
 
     async def listen_loop(self):
         print("Start listening")

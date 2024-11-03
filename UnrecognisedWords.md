@@ -122,3 +122,4 @@ Lerp - kinda... lap -> lerp
 slerp - slope -> slerp
 XOR (x four)
 right
+avg_double2

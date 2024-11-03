@@ -98,9 +98,15 @@ class PhoneticFuzzSearch:
         return matches
 
     def _matches_select_name_fuzzy(self, query: str, node_matches: list):
-        return process.extractOne(
+        name = process.extractOne(
             query, [node["name"].lower() for node in node_matches]
         )
+        if not name:
+            return None
+
+        for node in self.nodes:
+            if node["name"].lower() == name[0]:
+                return node
 
     def _search_template(
         self,

@@ -16,7 +16,13 @@
   - Moved everything, basically
   - Added a main.py at the beginnign of the project
 4. [X] Add the path for the nodes with the funnystring
-5. [ ] Add command recognition
+5. [X] Add command recognition
+  - [X] move config files out of the dictionaries
+  - [X] Recognise starting commands 
+  - [X] Recognise trailing commants
+  - [X] Be able to add aliases to commants
+  - [X] Send the commands with codes
+  - [X] Write a list of the command_codes
 6. [X] Implement a web socked to communicate to Resonite
   - Check what others have made, perhaps.
   - Must be able to send the speech in text.
@@ -32,6 +38,7 @@
 12. [ ] Add a README.md
 13. [ ] Create releases
   - Try learning github actions
+14. [ ] Figure out how to seach for types
 
 
 
@@ -39,8 +46,4 @@
 Add commant recognition
 
 ## Tasks
-- [ ] Recognise starting commands 
-- [ ] Recognise trailing commants
-- [ ] Be able to add aliases to dommants
-- [ ] Send the commands with codes
-- [ ] Write a list of the command_codes
+

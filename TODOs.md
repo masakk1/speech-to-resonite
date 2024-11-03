@@ -9,7 +9,7 @@
   - [ ] fuzzy_search for phonetic_fuzz_search only searches for the nodes, return the whole node
   - [ ] Make use of metaphone1
 2. [X] Look into more phonetic algorithms
-3. [ ] Structure the project
+3. [X] Structure the project
 4. [ ] Check the TODOs for the funnystring-to-json project
 5. [ ] Add command recognition
   - Bind different aliases. ie: give me a, gimme a, generate a, create node, etc - type, of type, etc.

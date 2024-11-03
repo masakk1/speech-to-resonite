@@ -1,32 +1,38 @@
-#!/usr/bin/env python
-
 import asyncio
 
 from websockets.asyncio.server import serve
 
 
-async def handler(websocket, stop_event, message_queue):
-    print("handler")
-    last_message = None
-    while not stop_event.is_set():
-        message = await message_queue.get()
-        print(message)
-        if last_message == message:
-            continue
+class WebsocketServer:
+    def __init__(self, message_queue, stop_event, host="127.0.0.1", port=8069):
+        self.message_queue = message_queue
+        self.stop_event = stop_event
+        self.host = host
+        self.port = port
+        self.connections = set()
 
-        await websocket.send(last_message)
-        await asyncio.sleep(0.5)
+    async def handler(self, websocket):
+        print("Connection established")
+        self.connections.add(websocket)
+        try:
+            last_message = None
+            while not self.stop_event.is_set():
+                message = await self.message_queue.get()
+                speech, parsed = message
 
+                await websocket.send("SPK-" + speech)
+                await websocket.send("CMD-" + parsed)
+                print(f">>>Speech: {speech}")
+                print(f">>>Parsed: {parsed}")
+                last_message = message
 
-async def websocket_start(message_queue, stop_event, host="", port="5569"):
-    print("websocket_start")
+        finally:
+            self.connections.remove(websocket)
 
-    async def wrapper(websocket, path):
-        await handler(websocket, message_queue, stop_event)
+    async def start(self):
+        print("Starting websocket")
 
-    async with serve(
-        wrapper,
-        host=host,
-        port=port,
-    ):
-        await asyncio.get_running_loop().create_future()  # run forever
+        async with serve(self.handler, self.host, self.port):
+            print(f"WebSocket server started at ws://{self.host}:{self.port}")
+            # Keep the server running until stop_event is set
+            await self.stop_event.wait()

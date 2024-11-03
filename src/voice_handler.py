@@ -4,7 +4,7 @@ import asyncio
 import sys
 import os
 
-from .phonetic_fuzz_search import PhoneticFuzzSearch
+from src.phonetic_fuzz_search import PhoneticFuzzSearch
 
 
 DEBUG = False
@@ -17,10 +17,11 @@ def list_difference(list1, list2):
 class VoiceHandler:
     def __init__(
         self,
-        message_queue=None,
-        model_path=None,
-        database_path=None,
-        custom_words_path=None,
+        message_queue,
+        stop_event,
+        model_path,
+        database_path,
+        custom_words_path,
         stream=None,
     ):
         if not os.path.exists(model_path):
@@ -32,6 +33,7 @@ class VoiceHandler:
             print("Please provide a message queue. asyncio.Queue()")
 
         self.message_queue = message_queue
+        self.stop_event = stop_event
 
         self.debug = DEBUG
         self.listening = False
@@ -100,22 +102,29 @@ class VoiceHandler:
 
     def parse_speech(self, speech: str):
         node = self.search_node(speech)
+        node = node[0] if node else ""
 
         return node
 
-    async def listen_loop(self, stop_event):
-        while not stop_event.is_set():
-            data = self.stream.read(4096)
+    async def listen_loop(self):
+        print("Start listening")
 
-            if self.recognizer.AcceptWaveform(data):
-                result = self.recognizer.Result()
-                result = json.loads(result)
-                text = result["text"]
+        async def read_stream():
+            loop = asyncio.get_event_loop()
 
-                if text == "":
-                    continue
+            while not self.stop_event.is_set():
+                # Run the blocking read in a thread pool
+                data = await loop.run_in_executor(None, self.stream.read, 4096)
+                if self.recognizer.AcceptWaveform(data):
+                    result = self.recognizer.Result()
+                    result = json.loads(result)
 
-                node = self.parse_speech(text)
-                self.result = node
+                    speech = result["text"]
+                    if speech == "":
+                        continue
 
-                await self.message_queue.put(node)
+                    parsed = self.parse_speech(speech)
+
+                    await self.message_queue.put((speech, parsed))
+
+        await read_stream()

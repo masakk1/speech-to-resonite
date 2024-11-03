@@ -1,5 +1,5 @@
 from src.voice_handler import VoiceHandler
-from src.websocket_server import websocket_start
+from src.websocket_server import WebsocketServer
 import asyncio
 import pyaudio
 
@@ -10,10 +10,12 @@ async def main():
 
     voice_handler = VoiceHandler(
         message_queue=message_queue,
+        stop_event=stop_event,
         model_path="data/models/vosk-model-small-en-us-0.15",
         database_path="data/dictionaries/resonite-node-database.json",
         custom_words_path="data/dictionaries/custom-words.json",
     )
+    ws = WebsocketServer(message_queue, stop_event, "127.0.0.1", 8069)
 
     mic = pyaudio.PyAudio()
     stream = mic.open(
@@ -25,10 +27,20 @@ async def main():
     )
     voice_handler.stream = stream
 
-    voice_handler_task = asyncio.create_task(voice_handler.listen_loop(stop_event))
-    websocket_task = asyncio.create_task(websocket_start(message_queue, stop_event))
+    print("\n\n\n\n\n\n\nstaring tasks")
 
-    asyncio.gather(voice_handler_task, websocket_task)
+    try:
+        await asyncio.gather(
+            ws.start(),
+            voice_handler.listen_loop(),
+        )
+    except Exception as e:
+        print(f"Error in main: {e}")
+    finally:
+        stream.stop_stream()
+        stream.close()
+        mic.terminate()
+        stop_event.set()
 
 
 if __name__ == "__main__":

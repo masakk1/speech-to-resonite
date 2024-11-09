@@ -15,16 +15,17 @@ class WebsocketServer:
         print("Connection established")
         self.connections.add(websocket)
         try:
-            last_message = None
             while not self.stop_event.is_set():
                 message = await self.message_queue.get()
                 speech, parsed = message
 
-                await websocket.send("SPK-" + speech)
-                await websocket.send("CMD-" + parsed)
+                send_tasks = [
+                    websocket.send(f"SPK-{speech}CMD-{parsed}")
+                    for websocket in self.connections
+                ]
+                asyncio.gather(*send_tasks)
                 print(f">>>Speech: {speech}")
                 print(f">>>Parsed: {parsed}")
-                last_message = message
 
         finally:
             self.connections.remove(websocket)

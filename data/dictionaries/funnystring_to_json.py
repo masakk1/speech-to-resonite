@@ -25,10 +25,10 @@ metasoundex = abydos.phonetic.MetaSoundex()
 COMMON_PATH = "[ProtoFluxBindings]FrooxEngine.ProtoFlux.Runtimes.Execution.Nodes"
 
 
-def convert_numbers_to_words(input_string):
+def convert_numbers_to_words(input_string, separator=""):
     def replace_number(match):
         number = match.group(0)  # Get the matched number
-        return num2words(number)  # Convert to words
+        return separator + num2words(number)  # Convert to words
 
     output_string = re.sub(r"\d+", replace_number, input_string)
 
@@ -74,18 +74,10 @@ def generate_nodes_grammar(funnystring):
     return data
 
 
-def speech_sanitize(speech: str):
+def speech_sanitize(speech: str, separator=""):
     speech = speech.lower().replace(" ", "").replace("_", "")
-    speech = convert_numbers_to_words(speech)
+    speech = convert_numbers_to_words(speech, separator)
     return speech
-
-
-def get_metaphone_code(string):
-    string = string.replace("_", "").lower()
-    string = convert_numbers_to_words(string)
-    # print(string)
-    code = doublemetaphone(string)
-    return code
 
 
 def generate_node_names(funnystring):
@@ -112,19 +104,19 @@ def generate_node_names(funnystring):
             "path": path,
             # All codes
             "soundex": soundex.encode(spoken_name),
-            "refinedsoundex": refinedsoundex.encode(spoken_name),
+            # "refinedsoundex": refinedsoundex.encode(spoken_name),
             "metaphone": metaphone.encode(spoken_name),
             # "doublemetaphone": doublemetaphone.encode(spoken_name),
-            "nysiis": nysiis.encode(spoken_name),
+            # "nysiis": nysiis.encode(spoken_name),
             "caverphone": caverphone.encode(spoken_name),
             # "daitchmokotoff": daitchmokotoff.encode(spoken_name),
-            "mra": mra.encode(spoken_name),
-            "phonex": phonex.encode(spoken_name),
-            "phonix": phonix.encode(spoken_name),
+            # "mra": mra.encode(spoken_name),
+            # "phonex": phonex.encode(spoken_name),
+            # "phonix": phonix.encode(spoken_name),
             # "beidermorse": beidermorse.encode(spoken_name),
-            "fuzzysoundex": fuzzysoundex.encode(spoken_name),
-            "onca": onca.encode(spoken_name),
-            "metasoundex": metasoundex.encode(spoken_name),
+            # "fuzzysoundex": fuzzysoundex.encode(spoken_name),
+            # "onca": onca.encode(spoken_name),
+            # "metasoundex": metasoundex.encode(spoken_name),
         }
 
         data.append(node)
@@ -132,42 +124,63 @@ def generate_node_names(funnystring):
     return data
 
 
-def validate_args(args):
-    if len(args) < 2:
-        print("Usage: python script.py <origin_file> <output_path>")
-        sys.exit(1)
+def generate_node_types(typestring: str):
+    data = []
+    types = typestring.split("\n")
 
-    if os.path.exists(args[1]) == False:
-        print(f"Error: could not find the funnystring. Path = {sys.argv[1]}")
-        sys.exit(1)
+    for node_type in types:
+        if node_type == "":
+            continue
 
-    if len(args) < 3:
-        print("Defaulting output path to '.'")
-        args.append(".")
-    if os.path.exists(args[2]) == False:
-        print(
-            f"Error: could not find the output path. Path = {args[2]}. Defaulting position to '.'"
-        )
-        args[2] = "."
+        node_type = node_type.strip()
 
-    return args
+        sanitized_type = speech_sanitize(node_type)
+
+        data.append({"name": node_type, "metaphone": metaphone.encode(sanitized_type)})
+
+    return data
+
+
+def generate_node_types_grammar(typestring: str):
+    data = []
+    types = typestring.split("\n")
+
+    for node_type in types:
+        if node_type == "":
+            continue
+
+        node_type = node_type.strip()
+
+        type_grammar = " ".join(split_word_by_uppercase(node_type))
+
+        data.append(type_grammar)
+
+    return data
 
 
 if __name__ == "__main__":
 
-    args = validate_args(sys.argv)
+    args = sys.argv
+
     funnystring_path = args[1]
     with open(funnystring_path, "r") as json_file:
         funnystring = json_file.read()
 
+    typestring_path = args[2]
+    with open(typestring_path, "r") as json_file:
+        typestring = json_file.read()
+
     grammar = generate_nodes_grammar(funnystring)
     nodes = generate_node_names(funnystring)
 
-    node_database = {"nodes": nodes, "grammar": grammar}
+    types_grammar = generate_node_types_grammar(typestring)
+    types = generate_node_types(typestring)
+
+    node_database = {"nodes": nodes, "types": types, "grammar": grammar + types_grammar}
 
     json_data = json.dumps(node_database, indent=4)
 
-    with open(args[2] + "/" + "resonite-node-database.json", "w") as json_file:
+    with open(args[3] + "/" + "resonite-node-database.json", "w") as json_file:
         json_file.write(json_data)
 
     print("Conversion complete. Check resonite-node-database.json for the result.")

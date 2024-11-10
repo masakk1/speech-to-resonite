@@ -21,7 +21,7 @@ def convert_numbers_to_words(input_string):
 
 class PhoneticFuzzSearch:
 
-    def __init__(self, database_path="dictionaries/resonite-node-database.json"):
+    def __init__(self, database_path="data/dictionaries/resonite-node-database.json"):
         self.debug = False
 
         self.database_path = database_path
@@ -37,6 +37,7 @@ class PhoneticFuzzSearch:
             self.database = json.load(f)
 
         self.nodes = self.database["nodes"]
+        self.types = self.database["types"]
 
     def _get_encoders(self):
         self.node_encoders = {
@@ -61,56 +62,43 @@ class PhoneticFuzzSearch:
         speech = convert_numbers_to_words(speech)
         return speech
 
-    def _search_fuzzy(self, query: str, list, limit) -> list:
-        return process.extract(query, list, limit=limit)
-
-    def _code_metaphone(self, query: str):
-        return abydos.phonetic.metaphone(query)
-
-    def _code_double_metaphone(self, query: str):
-        return abydos.phonetic.double_metaphone(query)
-
-    def _code_nysiis(self, query: str):
-        return abydos.phonetic.nysiis(query)
-
-    def _node_search_exact(self, query: str, node_attribute) -> list:
+    def _node_search_exact(self, query: str, list: list, node_attribute) -> list:
         matches = []
-        for node in self.nodes:
+        for node in list:
             if query == node[node_attribute]:
                 matches.append(node)
 
         return matches
 
-    def _node_search_fuzzy(self, query: str, node_attribute) -> list:
-        code_matches = process.extract(
-            query, [node[node_attribute] for node in self.nodes]
-        )
+    def _node_search_fuzzy(self, query: str, list: list, node_attribute) -> list:
+        code_matches = process.extract(query, [node[node_attribute] for node in list])
 
         code_matches = remove_list_dulicates(code_matches)
 
         matches = []
         for match in code_matches:
             code = match[0]
-            for node in self.nodes:
+            for node in list:
                 if node[node_attribute] == code:
                     matches.append(node)
 
         return matches
 
-    def _matches_select_name_fuzzy(self, query: str, node_matches: list):
+    def _matches_select_name_fuzzy(self, query: str, list: list, node_matches: list):
         name = process.extractOne(
             query, [node["name"].lower() for node in node_matches]
         )
         if not name:
             return None
 
-        for node in self.nodes:
+        for node in list:
             if node["name"].lower() == name[0]:
                 return node
 
     def _search_template(
         self,
         query: str,
+        list: list,
         code_gen_func: callable,
         code_name: str,
         code_search_func: callable,
@@ -119,14 +107,18 @@ class PhoneticFuzzSearch:
         query = self.speech_sanitize(query)
 
         code = code_gen_func(query)
-        matches = code_search_func(code, code_name)
-        node_found = match_select_func(query, matches)
+        self.debugging_print("Searching Code:", code)
+        matches = code_search_func(code, list, code_name)
+        self.debugging_print("Matches:", matches)
+        node_found = match_select_func(query, list, matches)
+        self.debugging_print("Node Found:", node_found)
 
         return node_found
 
     def search_node_exact_metaphone(self, query: str):
         return self._search_template(
             query,
+            self.nodes,
             self.node_encoders["metaphone"].encode,
             "metaphone",
             self._node_search_exact,
@@ -136,6 +128,7 @@ class PhoneticFuzzSearch:
     def search_node_fuzzy_metaphone(self, query: str):
         return self._search_template(
             query,
+            self.nodes,
             self.node_encoders["metaphone"].encode,
             "metaphone",
             self._node_search_fuzzy,
@@ -145,6 +138,27 @@ class PhoneticFuzzSearch:
     def search_node_exact_caverphone(self, query: str):
         return self._search_template(
             query,
+            self.nodes,
+            self.node_encoders["caverphone"].encode,
+            "caverphone",
+            self._node_search_exact,
+            self._matches_select_name_fuzzy,
+        )
+
+    def search_type_exact_metaphone(self, query: str):
+        return self._search_template(
+            query,
+            self.types,
+            self.node_encoders["metaphone"].encode,
+            "metaphone",
+            self._node_search_exact,
+            self._matches_select_name_fuzzy,
+        )
+
+    def search_type_exact_caverphone(self, query: str):
+        return self._search_template(
+            query,
+            self.types,
             self.node_encoders["caverphone"].encode,
             "caverphone",
             self._node_search_exact,

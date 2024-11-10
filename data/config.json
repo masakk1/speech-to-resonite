@@ -6,6 +6,7 @@
         "REPEATPREV",
         "SEARCHPREV"
     ],
+    "node_type_fallback": "float",
     "grammar": {
         "add": [
             "give me a",
@@ -185,10 +186,16 @@
             {
                 "replace": "busy year",
                 "new": "bezier"
+            }
+        ],
+        "node_type": [
+            {
+                "replace": "to",
+                "new": "two"
             },
             {
-                "replace": "float to",
-                "new": "float two"
+                "replace": "load",
+                "new": "float"
             }
         ]
     }

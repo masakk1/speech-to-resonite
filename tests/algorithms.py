@@ -2,12 +2,12 @@ import unittest
 import time
 
 import abydos.phonetic
-from speech_to_resonite.src.phonetic_fuzz_search import PhoneticFuzzSearch
+from src.phonetic_fuzz_search import PhoneticFuzzSearch
 import json
 import abydos
 
-DICT_PATH = "speech_to_resonite/data/dictionaries/resonite-node-database.json"
-QUERIES_PATH = "speech_to_resonite/tests/queries.json"
+DICT_PATH = "data/dictionaries/resonite-node-database.json"
+QUERIES_PATH = "tests/queries.json"
 
 soundex = abydos.phonetic.Soundex()
 refinedsoundex = abydos.phonetic.RefinedSoundex()
@@ -76,11 +76,11 @@ class TestPhoneticFuzzSearch(unittest.TestCase):
         }
 
     def _get_all_queries(self):
-        self.queries["all"] = []
+        self.queries["nodes"]["all"] = []
         for i in range(len(self.nodes)):
             name = self.nodes[i]["name"]
             spoken_name = self.finder.speech_sanitize(name)
-            self.queries["all"].append([spoken_name, name])
+            self.queries["nodes"]["all"].append([spoken_name, name])
 
     def _test_template(
         self, name, node_searcher_name, queries, node_searcher_func, *args, **kwargs
@@ -90,23 +90,43 @@ class TestPhoneticFuzzSearch(unittest.TestCase):
         score = 0
         for query, real in queries:
             node = node_searcher_func(query, *args, **kwargs)
-            if node and node[0] == real.lower():
-                score += 1
+            if node:
+                # print(
+                #     f"{node["name"]==real} - {query} - found {node['name']} - real {real}"
+                # )
+                if node["name"] == real:
+                    score += 1
+            # else:
+            #    print(f"{None} - {query} - {node} - {real}")
 
         end_time = time.time()
 
         print(
-            f"{self._testMethodName[5:]:<15}{name:<10}\t{node_searcher_name:<10}\t{end_time - start_time:.2f}\t{score/len(queries):.4f}"
+            f"{self._testMethodName[5:]:<15}{name:<10}\t{node_searcher_name:<10}\t{end_time - start_time:.2f}\t{score}/{len(queries)}"
         )
 
     def _test_suite(self, encoder, code_name):
-        for query_list in self.queries:
+        for query_list in self.queries["nodes"]:
             for node_search_func in self.node_searchers:
                 self._test_template(
                     query_list,
                     node_search_func,
-                    self.queries[query_list],
+                    self.queries["nodes"][query_list],
                     self.finder._search_template,
+                    self.finder.nodes,
+                    encoder.encode,
+                    code_name,
+                    self.node_searchers[node_search_func],
+                    self.finder._matches_select_name_fuzzy,
+                )
+        for query_list in self.queries["types"]:
+            for node_search_func in self.node_searchers:
+                self._test_template(
+                    query_list,
+                    node_search_func,
+                    self.queries["types"][query_list],
+                    self.finder._search_template,
+                    self.finder.types,
                     encoder.encode,
                     code_name,
                     self.node_searchers[node_search_func],

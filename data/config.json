@@ -20,13 +20,12 @@
             "h s l",
             "e numb",
             "x y w h",
-            "seal  ceil",
+            "seal",
             "square root",
             "one to three four",
             "eleven",
             "wrecked",
             "knoll",
-            "deep whip",
             "f o v",
             "lap",
             "slope",
@@ -82,16 +81,15 @@
             {
                 "new": "NEWNODE",
                 "replace": [
-                    "give me a",
                     "give me an",
-                    "gimme a",
+                    "give me a",
                     "gimme an",
+                    "gimme a",
                     "gimme n",
-                    "spawn a",
                     "spawn an",
-                    "spawn",
-                    "generate a",
-                    "generate an"
+                    "spawn a",
+                    "spawn n",
+                    "spawn"
                 ]
             }
         ],
@@ -137,10 +135,6 @@
                 "new": "null"
             },
             {
-                "replace": "deep whip",
-                "new": "dequip"
-            },
-            {
                 "replace": "slope",
                 "new": "SLerp"
             },
@@ -154,7 +148,7 @@
             },
             {
                 "replace": "as byte",
-                "new": "abyte"
+                "new": "sbyte"
             },
             {
                 "replace": "one d",
@@ -175,14 +169,6 @@
             {
                 "replace": "grab a bubble",
                 "new": "grabbable"
-            },
-            {
-                "replace": "d focus",
-                "new": "defocus"
-            },
-            {
-                "replace": "d multiplex",
-                "new": "demultiplex"
             },
             {
                 "replace": "charts",

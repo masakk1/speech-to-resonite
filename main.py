@@ -27,7 +27,7 @@ async def main():
     )
     voice_handler.stream = stream
 
-    print("\n\n\n\n\n\n\nstaring tasks")
+    print("\n\nstaring tasks")
 
     try:
         await asyncio.gather(

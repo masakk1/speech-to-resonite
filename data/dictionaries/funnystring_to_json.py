@@ -103,12 +103,12 @@ def generate_node_names(funnystring):
             "type": parts[-1] if has_type else "",
             "path": path,
             # All codes
-            "soundex": soundex.encode(spoken_name),
+            "caverphone": caverphone.encode(spoken_name),
+            # "soundex": soundex.encode(spoken_name),
             # "refinedsoundex": refinedsoundex.encode(spoken_name),
             "metaphone": metaphone.encode(spoken_name),
             # "doublemetaphone": doublemetaphone.encode(spoken_name),
             # "nysiis": nysiis.encode(spoken_name),
-            "caverphone": caverphone.encode(spoken_name),
             # "daitchmokotoff": daitchmokotoff.encode(spoken_name),
             # "mra": mra.encode(spoken_name),
             # "phonex": phonex.encode(spoken_name),
@@ -134,9 +134,27 @@ def generate_node_types(typestring: str):
 
         node_type = node_type.strip()
 
-        sanitized_type = speech_sanitize(node_type)
+        spoken_name = speech_sanitize(node_type)
 
-        data.append({"name": node_type, "metaphone": metaphone.encode(sanitized_type)})
+        data.append(
+            {
+                "name": node_type,
+                # "soundex": soundex.encode(spoken_name),
+                # "refinedsoundex": refinedsoundex.encode(spoken_name),
+                "metaphone": metaphone.encode(spoken_name),
+                # "doublemetaphone": doublemetaphone.encode(spoken_name),
+                # "nysiis": nysiis.encode(spoken_name),
+                "caverphone": caverphone.encode(spoken_name),
+                # "daitchmokotoff": daitchmokotoff.encode(spoken_name),
+                # "mra": mra.encode(spoken_name),
+                # "phonex": phonex.encode(spoken_name),
+                # "phonix": phonix.encode(spoken_name),
+                # "beidermorse": beidermorse.encode(spoken_name),
+                # "fuzzysoundex": fuzzysoundex.encode(spoken_name),
+                # "onca": onca.encode(spoken_name),
+                # "metasoundex": metasoundex.encode(spoken_name),
+            }
+        )
 
     return data
 

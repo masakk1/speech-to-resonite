@@ -8,6 +8,7 @@ from src.phonetic_fuzz_search import PhoneticFuzzSearch
 
 
 DEBUG = False
+DEFAULT_NODE_TYPE_FALLBACK = "float"
 
 
 def list_difference(list1, list2):
@@ -77,6 +78,8 @@ class VoiceHandler:
         with open(self.database_path, "r") as f:
             resonite_dictionary = json.load(f)
 
+        self.config = config
+
         # Bindings
         self.bindings = config["bindings"]
 
@@ -86,21 +89,29 @@ class VoiceHandler:
 
         self.dictionary = json.dumps(self.dictionary)
 
-    def swap_bindings(self, text: str):
-        for cmd_binding in self.bindings["cmd"]:
-            for replace in cmd_binding["replace"]:
-                text = text.replace(replace, cmd_binding["new"])
-
-        for node_binding in self.bindings["node"]:
-            text = text.replace(node_binding["replace"], node_binding["new"])
+    def swap_bindings(self, text: str, bindings: list):
+        for binding in bindings:
+            if isinstance(binding["replace"], list):
+                for replace in binding["replace"]:
+                    text = text.replace(replace, binding["new"])
+            else:
+                text = text.replace(binding["replace"], binding["new"])
 
         return text
 
     def search_node(self, speech: str):
-        speech = self.swap_bindings(speech)
+        speech = self.swap_bindings(speech, self.bindings["node"])
         query = self.finder.speech_sanitize(speech)
 
         return self.finder.search_node_exact_caverphone(query)
+
+    def search_type(self, speech: str):
+        speech = self.swap_bindings(speech, self.bindings["node_type"])
+        query = self.finder.speech_sanitize(speech)
+
+        result = self.finder.search_type_exact_caverphone(query)
+        print(result)
+        return result
 
     def parse_task(self, text: str):
         words = text.split()
@@ -130,14 +141,18 @@ class VoiceHandler:
             if key == "NEWNODE":
                 node = self.search_node(value)
                 if node:
-                    print(node)
-
                     name = node["name"]
                     path = node["path"]
                     # node_type = node["type"]
                     task["NEWNODE"] = f"{path}.{name}"  # {node_type}"
+
                 else:
                     task = {"ERR": "Node not found"}
+            if key == "NODETYPE":
+                node_type = self.search_type(value) or {"name": "float"}
+
+                name = node_type["name"]
+                task["NODETYPE"] = name
 
         return task
 
@@ -145,7 +160,7 @@ class VoiceHandler:
         return " ".join(f"{key} {value}" for key, value in task.items())
 
     def parse_speech(self, speech: str):
-        task_text = self.swap_bindings(speech)
+        task_text = self.swap_bindings(speech, self.bindings["cmd"])
         task = self.parse_task(task_text)
         task = self.handle_task(task)
 
